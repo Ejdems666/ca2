@@ -6,9 +6,9 @@
 package org.cba.ca2.server;
 
 /**
- *
  * @author trez__000
  */
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -26,6 +26,7 @@ public class ClientHandler implements Runnable {
     public String getName() {
         return name;
     }
+
     private Responder responder;
 
     public ClientHandler(Socket client) throws IOException {
@@ -45,35 +46,38 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             Scanner input = new Scanner(client.getInputStream());
-            output.println("Please Log in with command: \"LOGIN:name\"");
             String message = input.nextLine();
-            while (!message.equalsIgnoreCase("exit")) {
+            while (!message.equalsIgnoreCase("EXIT")) {
                 if (isLoggedIn()) {
                     processMessage(message);
                 } else {
                     login(message);
                     if (isLoggedIn()) {
-                        output.println("You're logged in as: " + name);
-                        output.println("Clients online: "+responder.getLoggedInClientNames());
-                        output.println("\"help\" for help");
+                        responder.sendClientListToAllClients();
                     } else {
-                        output.println("You're not logged in! Try again");
+                        sendError("You're not logged in! Try again");
                     }
                 }
-
                 message = input.nextLine();
             }
-            responder.respondToAllClients(this, "Client " + name + " disconnected");
             client.close();
-        } catch (IOException e) {
+        } catch (IOException | NoSuchElementException e) {
             e.printStackTrace();
-        } catch (NoSuchElementException e) {
-            responder.respondToAllClients(this, "Client " + name + " disconnected");
+        } finally {
+            if (isLoggedIn()) {
+                logoutAndNotify();
+            }
+            responder.removeClient(this);
         }
-        finally{
-            responder.removeClientHandler(this);
-        }
+    }
 
+    private void logoutAndNotify() {
+        name = null;
+        responder.sendClientListToAllClients();
+    }
+
+    private void sendError(String errorMessage) {
+        output.println("ERROR:" + errorMessage);
     }
 
     public boolean isLoggedIn() {
@@ -92,42 +96,28 @@ public class ClientHandler implements Runnable {
         String[] splitMessage = rawMessage.split(":", 3);
         switch (splitMessage[0].toUpperCase()) {
             case "LOGOUT":
-                name = null;
-                output.println("You're logged out!");
+                logoutAndNotify();
                 break;
             case "MSG":
                 try {
-                    if(splitMessage[1].isEmpty()){
-                        output.println("Wrong Command!");
+                    if (splitMessage[1].isEmpty()) {
+                        sendError("Wrong Command!");
                         break;
                     }
                     String message = splitMessage[2];
                     if (splitMessage[1].equals("*")) {
-                        responder.respondToAllClients(this, message);  
+                        responder.sendMessageToAllClients(this, message);
                         break;
                     }
-                    
+
                     List<String> receivers = Arrays.asList(splitMessage[1].split(","));
-                    responder.respondToClientsByNames(this, message, receivers);
+                    responder.sendMessageToClientsByNames(this, receivers, message);
                 } catch (IndexOutOfBoundsException e) {
-                    output.println("Wrong Command!");
+                    sendError("Wrong Command!");
                 }
                 break;
-                
-            case "CLIENTLIST":
-                output.println(responder.getLoggedInClientNames());
-                break;
-            case "HELP":
-                output.println("Commands: ");
-                output.println("LOGOUT : logs you out ");
-                output.println("MSG : write message to smb as \"MSG:client:message\"");
-                output.println("CLIENTLIST : shows all online clients");
-                output.println("EXIT : exit from chat");
-                
-                break;
-                
             default:
-                output.println("Wrong Command!");
+                sendError("Wrong Command!");
 
         }
     }
