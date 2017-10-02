@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
                     login(message);
                     if (isLoggedIn()) {
                         output.println("You're logged in as: " + name);
-                        output.println("Clients online: "+responder.getLoggedinClientNames());
+                        output.println("Clients online: "+responder.getLoggedInClientNames());
                         output.println("\"help\" for help");
                     } else {
                         output.println("You're not logged in! Try again");
@@ -115,7 +115,7 @@ public class ClientHandler implements Runnable {
                 break;
                 
             case "CLIENTLIST":
-                output.println(responder.getLoggedinClientNames());
+                output.println(responder.getLoggedInClientNames());
                 break;
             case "HELP":
                 output.println("Commands: ");

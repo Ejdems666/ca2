@@ -40,14 +40,13 @@ public class Responder {
         clientHandlers.remove(aThis);
     }
 
-    public String getLoggedinClientNames() {
-        String names = "";
+    public String getLoggedInClientNames() {
+        List<String> names = new ArrayList<>();
         for (ClientHandler clientHandler : clientHandlers) {
             if (clientHandler.isLoggedIn()) {
-                names += clientHandler.getName() + ", ";
+                names.add(clientHandler.getName());
             }
-
         }
-        return names;
+        return String.join(",",names);
     }
 }
