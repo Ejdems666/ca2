@@ -94,6 +94,7 @@ public class ClientHandler implements Runnable {
             case "LOGOUT":
                 name = null;
                 output.println("You're logged out!");
+                responder.respondToAllClients(this, "Clients online: "+responder.getLoggedinClientNames());
                 break;
             case "MSG":
                 try {
