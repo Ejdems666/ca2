@@ -1,4 +1,6 @@
-package org.cba.ca2.client;
+package org.cba.ca2.client.gui;
+
+import org.cba.ca2.client.ServerInputRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,22 +9,20 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class GUIClient {
+public class GUIClient{
 
     String      appName     = "SOCKET CHAT 0.1V";
     JFrame newFrame = new JFrame("Colt Chat v0.1");
     JButton sendMessage;
     JTextField messageBox;
-    JTextArea chatBox;
+    ChatBoxInput chatBoxInput;
     JTextField usernameChooser;
     JFrame preFrame;
     JTextField  ipAddress;
     JTextField  port;
     private Socket serverSocket;
     private PrintWriter serverOutput;
-    private Scanner serverInput;
 
     public static void main(String[] args) throws IOException {
         try {
@@ -85,11 +85,12 @@ public class GUIClient {
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(new sendMessageButtonListener());
 
-        chatBox = new JTextArea();
+        JTextArea chatBox = new JTextArea();
+        chatBoxInput = new ChatBoxInput(chatBox);
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 25));
         chatBox.setLineWrap(true);
-        printLineToChatBox("server","You're logged in as"+username);
+        chatBoxInput.printLineToChatBox("server","You're logged in as"+username);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -117,34 +118,15 @@ public class GUIClient {
         newFrame.setVisible(true);
         newFrame.getRootPane().setDefaultButton(sendMessage);
 
-        new Thread(() -> {
-            try {
-                Scanner serverInput = new Scanner(serverSocket.getInputStream());
-                while (serverSocket.isConnected()) {
-                    String message = serverInput.nextLine();
-                    System.out.println(message);
-                    String[] splitMessage = message.split(":");
-                    if (splitMessage[0].equalsIgnoreCase("MSGRES")) {
-                        printLineToChatBox(splitMessage[1],splitMessage[2]);
-                    }
-                }
-                printLineToChatBox("server","done");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        new Thread(new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput))).start();
     }
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            printLineToChatBox(username,messageBox.getText());
+            chatBoxInput.printLineToChatBox(username,messageBox.getText());
             serverOutput.println("MSG:*:"+messageBox.getText());
             messageBox.setText("");
         }
-    }
-
-    private void printLineToChatBox(String sender,String text) {
-        chatBox.append("<" + sender + ">:  " + text + "\n");
     }
 
     String username;
@@ -175,6 +157,5 @@ public class GUIClient {
     private void connectToServer(String ip, int port) throws IOException {
         serverSocket = new Socket(ip, port);
         serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
-        serverInput = new Scanner(serverSocket.getInputStream());
     }
 }
