@@ -16,11 +16,14 @@ public class GUIClient{
     JFrame newFrame = new JFrame("Colt Chat v0.1");
     JButton sendMessage;
     JTextField messageBox;
-    ChatBoxInput chatBoxInput;
+    private JTextArea chatBox  = new JTextArea();
+    ChatBoxInput chatBoxInput = new ChatBoxInput(chatBox);
     JTextField usernameChooser;
     JFrame preFrame;
     JTextField  ipAddress;
     JTextField  port;
+
+    JComboBox<String> clientComboBox = new JComboBox<>();
     private Socket serverSocket;
     private PrintWriter serverOutput;
 
@@ -39,7 +42,9 @@ public class GUIClient{
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(25);
         ipAddress = new JTextField(25);
+        ipAddress.setText("localhost");
         port = new JTextField(25);
+        port.setText("1235");
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JLabel chooseIpAddress = new JLabel("Insert IP address:");
         JLabel choosePort = new JLabel("Insert Port");
@@ -85,8 +90,6 @@ public class GUIClient{
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(new sendMessageButtonListener());
 
-        JTextArea chatBox = new JTextArea();
-        chatBoxInput = new ChatBoxInput(chatBox);
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 25));
         chatBox.setLineWrap(true);
@@ -107,6 +110,8 @@ public class GUIClient{
         right.weightx = 1.0D;
         right.weighty = 1.0D;
 
+
+        southPanel.add(clientComboBox,left);
         southPanel.add(messageBox, left);
         southPanel.add(sendMessage, right);
 
@@ -117,14 +122,12 @@ public class GUIClient{
         newFrame.setSize(870, 500);
         newFrame.setVisible(true);
         newFrame.getRootPane().setDefaultButton(sendMessage);
-
-        new Thread(new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput))).start();
     }
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             chatBoxInput.printLineToChatBox(username,messageBox.getText());
-            serverOutput.println("MSG:*:"+messageBox.getText());
+            serverOutput.println("MSG:"+clientComboBox.getSelectedItem()+":"+messageBox.getText());
             messageBox.setText("");
         }
     }
@@ -143,6 +146,9 @@ public class GUIClient{
             else {
                 try {
                     connectToServer(ip,portNumber);
+                    new Thread(
+                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox))
+                    ).start();
                     serverOutput.println("LOGIN:"+username);
                     preFrame.setVisible(false);
                     renderChatFrame();
