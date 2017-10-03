@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private static ServerSocket serverSocket;
     private static String IP = "localhost";
-    private static int port = 1234;
+    private static int port = 1235;
     
     public static void main(String[] args) throws IOException {
         if (args.length == 2) {
