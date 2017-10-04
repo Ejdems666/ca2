@@ -147,7 +147,7 @@ public class GUIClient{
                 try {
                     connectToServer(ip,portNumber);
                     new Thread(
-                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox))
+                            new ServerInputRunnable(serverSocket,new GuiMessageListener(chatBoxInput, clientComboBox))
                     ).start();
                     serverOutput.println("LOGIN:"+username);
                     preFrame.setVisible(false);

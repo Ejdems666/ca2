@@ -10,14 +10,12 @@ import java.util.concurrent.Executors;
 /**
  * Created by adam on 27/09/2017.
  */
-public class Client {
+public class ConsoleClient {
     public static void main(String[] args) throws IOException {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         final Socket serverSocket = new Socket("localhost", 1235);
         executor.submit(new ServerOutputRunnable(serverSocket));
-        executor.submit(new ServerInputRunnable(serverSocket, new ConsoleMessageHandler()));
+        executor.submit(new ServerInputRunnable(serverSocket, new ConsoleMessageListener()));
         executor.shutdown();
     }
-
-
 }

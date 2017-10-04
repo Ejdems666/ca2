@@ -9,11 +9,11 @@ import java.util.Scanner;
  */
 public class ServerInputRunnable implements Runnable {
     final Socket serverSocket;
-    final MessageHandler messageHandler;
+    final MessageListener messageListener;
 
-    public ServerInputRunnable(Socket serverSocket, MessageHandler messageHandler) {
+    public ServerInputRunnable(Socket serverSocket, MessageListener messageListener) {
         this.serverSocket = serverSocket;
-        this.messageHandler = messageHandler;
+        this.messageListener = messageListener;
     }
 
     @Override
@@ -25,14 +25,14 @@ public class ServerInputRunnable implements Runnable {
                 String[] splitMessage = rawMessage.split(":");
                 switch (splitMessage[0].toUpperCase()) {
                     case "MSGRES":
-                        messageHandler.handleIncomingMessage(splitMessage[1], splitMessage[2]);
+                        messageListener.handleIncomingMessage(splitMessage[1], splitMessage[2]);
                         break;
                     case "CLIENTLIST":
-                        messageHandler.handleClientListChange(splitMessage[1].split(","));
+                        messageListener.handleClientListChange(splitMessage[1].split(","));
                         break;
                 }
             }
-            messageHandler.handleEndConnection();
+            messageListener.handleEndConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,11 +1,11 @@
 package org.cba.ca2.client.console;
 
-import org.cba.ca2.client.MessageHandler;
+import org.cba.ca2.client.MessageListener;
 
 /**
  * Created by adam on 03/10/2017.
  */
-public class ConsoleMessageHandler implements MessageHandler {
+public class ConsoleMessageListener implements MessageListener {
     @Override
     public void handleIncomingMessage(String sender, String message) {
         System.out.println("<"+sender+">: "+message);
