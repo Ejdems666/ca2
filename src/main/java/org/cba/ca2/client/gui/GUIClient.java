@@ -44,9 +44,9 @@ public class GUIClient{
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(25);
         ipAddress = new JTextField(25);
-        ipAddress.setText("207.107.217.117");
+        ipAddress.setText("207.154.217.117");
         port = new JTextField(25);
-        port.setText("1235");
+        port.setText("8081");
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JLabel chooseIpAddress = new JLabel("Insert IP address:");
         JLabel choosePort = new JLabel("Insert Port");
@@ -147,11 +147,7 @@ public class GUIClient{
             }
             else {
                 try {
-                    connectToServer(ip,portNumber);
-                    new Thread(
-                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox, username))
-                    ).start();
-                    serverOutput.println("LOGIN:"+username);
+                    establishServerCommunication(ip, portNumber);
                     preFrame.setVisible(false);
                     renderChatFrame();
                 } catch (IOException e) {
@@ -163,7 +159,7 @@ public class GUIClient{
         private void establishServerCommunication(String ip, int portNumber) throws IOException {
             client.connect(ip,portNumber);
             new Thread(
-                    new ServerInputHandler(client,new GuiMessageListener(chatBoxInput, clientComboBox))
+                    new ServerInputHandler(client,new GuiMessageListener(chatBoxInput, clientComboBox, username))
             ).start();
             client.sendLogin(username);
         }

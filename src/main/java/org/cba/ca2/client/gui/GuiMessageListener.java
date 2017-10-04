@@ -12,7 +12,7 @@ public class GuiMessageListener implements MessageListener {
     private final JComboBox<String> clientsSelectBox;
     private final String username;
 
-    public GuiMessageHandler(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox, String username) {
+    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox, String username) {
         this.chatBoxInput = chatBoxInput;
         this.clientsSelectBox = clientsSelectBox;
         this.username = username;
