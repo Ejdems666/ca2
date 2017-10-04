@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 public class ConsoleClient {
     public static void main(String[] args) throws IOException {
         Client client = new Client();
-        client.connect("207.154.217.117",1235);
+        client.connect("207.154.217.117",8081);
         ExecutorService executor = Executors.newFixedThreadPool(2);
         executor.submit(new ConsoleToServerHandler(client));
         executor.submit(new ServerInputHandler(client, new ConsoleMessageListener()));

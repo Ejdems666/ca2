@@ -11,14 +11,13 @@ public class GuiMessageListener implements MessageListener {
     private final ChatBoxInput chatBoxInput;
     private final JComboBox<String> clientsSelectBox;
 
-    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox) {
+    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox<String> clientsSelectBox) {
         this.chatBoxInput = chatBoxInput;
         this.clientsSelectBox = clientsSelectBox;
     }
 
     @Override
     public void handleIncomingMessage(String sender, String message) {
-        System.out.println(message);
         chatBoxInput.printLineToChatBox(sender,message);
     }
 
@@ -34,6 +33,5 @@ public class GuiMessageListener implements MessageListener {
             clientsSelectBox.addItem(s);
         }
         clientsSelectBox.addItem("*");
-        System.out.println(clientList);
     }
 }

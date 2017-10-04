@@ -8,26 +8,23 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.util.concurrent.*;
 
-public class GUIClient{
+public class GUIClient {
 
-    String      appName     = "SOCKET CHAT 0.1V";
-    JFrame newFrame = new JFrame("Colt Chat v0.1");
+    String appName = "Group 10 chat login";
+    JFrame newFrame = new JFrame("Group 10 chat");
     JButton sendMessage;
     JTextField messageBox;
-    private JTextArea chatBox  = new JTextArea();
-    ChatBoxInput chatBoxInput = new ChatBoxInput(chatBox);
     JTextField usernameChooser;
     JFrame preFrame;
-    JTextField  ipAddress;
-    JTextField  port;
+    JTextField ipAddress;
+    JTextField port;
     Client client = new Client();
-
     JComboBox<String> clientComboBox = new JComboBox<>();
-    private Socket serverSocket;
-    private PrintWriter serverOutput;
+    String username;
+    private JTextArea chatBox = new JTextArea();
+    ChatBoxInput chatBoxInput = new ChatBoxInput(chatBox);
 
     public static void main(String[] args) throws IOException {
         try {
@@ -44,9 +41,9 @@ public class GUIClient{
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(25);
         ipAddress = new JTextField(25);
-        ipAddress.setText("localhost");
+        ipAddress.setText("207.154.217.117");
         port = new JTextField(25);
-        port.setText("1235");
+        port.setText("8081");
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JLabel chooseIpAddress = new JLabel("Insert IP address:");
         JLabel choosePort = new JLabel("Insert Port");
@@ -95,7 +92,7 @@ public class GUIClient{
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 25));
         chatBox.setLineWrap(true);
-        chatBoxInput.printLineToChatBox("server","You're logged in as"+username);
+        chatBoxInput.printLineToChatBox("server", "You're logged in as " + username);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -113,7 +110,7 @@ public class GUIClient{
         right.weighty = 1.0D;
 
 
-        southPanel.add(clientComboBox,left);
+        southPanel.add(clientComboBox, left);
         southPanel.add(messageBox, left);
         southPanel.add(sendMessage, right);
 
@@ -128,13 +125,11 @@ public class GUIClient{
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            chatBoxInput.printLineToChatBox(username,messageBox.getText());
-            client.sendMessage(""+clientComboBox.getSelectedItem(),messageBox.getText());
+            chatBoxInput.printLineToChatBox("you", messageBox.getText());
+            client.sendMessage("" + clientComboBox.getSelectedItem(), messageBox.getText());
             messageBox.setText("");
         }
     }
-
-    String username;
 
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
@@ -144,25 +139,39 @@ public class GUIClient{
             username = usernameChooser.getText();
             if (username.length() < 1) {
                 System.out.println("No!");
-            }
-            else {
-                try {
-                    establishServerCommunication(ip, portNumber);
+            } else {
+                if (tryToConnect(ip, portNumber)) {
+                    establishCommunication();
+                    client.sendLogin(username);
                     preFrame.setVisible(false);
                     renderChatFrame();
-                } catch (IOException e) {
-                    System.out.println("Couldn't connect to: "+ip+":"+portNumber);
                 }
             }
         }
 
-        private void establishServerCommunication(String ip, int portNumber) throws IOException {
-            client.connect(ip,portNumber);
-            new Thread(
-                    new ServerInputHandler(client,new GuiMessageListener(chatBoxInput, clientComboBox))
-            ).start();
-            client.sendLogin(username);
+        private boolean tryToConnect(String ip, int portNumber) {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            Future<Boolean> future = executorService.submit(() -> {
+                try {
+                    client.connect(ip, portNumber);
+                    return true;
+                } catch (IOException e) {
+                    System.out.println("Couldn't connect to: " + ip + ":" + portNumber);
+                }
+                return false;
+            });
+            try {
+                return future.get(1, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
+        private void establishCommunication() {
+            new Thread(
+                    new ServerInputHandler(client, new GuiMessageListener(chatBoxInput, clientComboBox))
+            ).start();
+        }
     }
 }
