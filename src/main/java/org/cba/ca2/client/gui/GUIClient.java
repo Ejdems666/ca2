@@ -125,8 +125,9 @@ public class GUIClient {
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            chatBoxInput.printLineToChatBox("you", messageBox.getText());
-            client.sendMessage("" + clientComboBox.getSelectedItem(), messageBox.getText());
+            String recipient = clientComboBox.getSelectedItem().toString();
+            chatBoxInput.printLineToChatBox("you to "+recipient, messageBox.getText());
+            client.sendMessage("" + recipient, messageBox.getText());
             messageBox.setText("");
         }
     }
