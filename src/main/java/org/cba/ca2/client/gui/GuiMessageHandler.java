@@ -10,16 +10,18 @@ import javax.swing.*;
 public class GuiMessageHandler implements MessageHandler {
     private final ChatBoxInput chatBoxInput;
     private final JComboBox<String> clientsSelectBox;
+    private final String username;
 
-    public GuiMessageHandler(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox) {
+    public GuiMessageHandler(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox, String username) {
         this.chatBoxInput = chatBoxInput;
         this.clientsSelectBox = clientsSelectBox;
+        this.username = username;
     }
 
     @Override
     public void handleIncomingMessage(String sender, String message) {
-        System.out.println(message);
-        chatBoxInput.printLineToChatBox(sender,message);
+        if(!sender.equals(username))
+            chatBoxInput.printLineToChatBox(sender,message);
     }
 
     @Override

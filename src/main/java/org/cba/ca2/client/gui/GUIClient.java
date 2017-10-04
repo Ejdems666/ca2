@@ -42,7 +42,7 @@ public class GUIClient{
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(25);
         ipAddress = new JTextField(25);
-        ipAddress.setText("localhost");
+        ipAddress.setText("207.107.217.117");
         port = new JTextField(25);
         port.setText("1235");
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
@@ -147,7 +147,7 @@ public class GUIClient{
                 try {
                     connectToServer(ip,portNumber);
                     new Thread(
-                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox))
+                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox, username))
                     ).start();
                     serverOutput.println("LOGIN:"+username);
                     preFrame.setVisible(false);
