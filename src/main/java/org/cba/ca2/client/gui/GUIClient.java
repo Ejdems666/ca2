@@ -92,7 +92,7 @@ public class GUIClient {
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 25));
         chatBox.setLineWrap(true);
-        chatBoxInput.printLineToChatBox("server", "You're logged in as " + username);
+        chatBoxInput.printLineToChatBox("server","You're logged in as "+username);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -170,7 +170,7 @@ public class GUIClient {
 
         private void establishCommunication() {
             new Thread(
-                    new ServerInputHandler(client, new GuiMessageListener(chatBoxInput, clientComboBox))
+                    new ServerInputHandler(client,new GuiMessageListener(chatBoxInput, clientComboBox, username))
             ).start();
         }
     }

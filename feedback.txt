@@ -1,0 +1,11 @@
+-----Feedback regarding flow 2-------
+During the flow 2 we have learned Threads and Networking. 
+From our team point of view, Threading should've been given more attention. 
+Attention in regards to receiving more feedback from our exercises. We do understand
+the theory, but when doing it in practice, it becomes trickier. 
+Regarding the Neworking class we grasped the whole idea. 
+But, again, when we had to develop more complicated clients with Threading
+for example, we have felt a bit of a hitwall due to bad performance on last's
+week in Threading. 
+Overall, we managed to complete the assignments and the CA-2 assignmet with the 
+help of a more diverse team. Each providing full knowledge in their domain. 

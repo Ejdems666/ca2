@@ -10,15 +10,18 @@ import javax.swing.*;
 public class GuiMessageListener implements MessageListener {
     private final ChatBoxInput chatBoxInput;
     private final JComboBox<String> clientsSelectBox;
+    private final String username;
 
-    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox<String> clientsSelectBox) {
+    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox<String> clientsSelectBox, String username) {
         this.chatBoxInput = chatBoxInput;
         this.clientsSelectBox = clientsSelectBox;
+        this.username = username;
     }
 
     @Override
     public void handleIncomingMessage(String sender, String message) {
-        chatBoxInput.printLineToChatBox(sender,message);
+        if(!sender.equals(username))
+            chatBoxInput.printLineToChatBox(sender,message);
     }
 
     @Override
