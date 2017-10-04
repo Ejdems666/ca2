@@ -1,6 +1,7 @@
 package org.cba.ca2.client.gui;
 
-import org.cba.ca2.client.ServerInputRunnable;
+import org.cba.ca2.client.Client;
+import org.cba.ca2.client.ServerInputHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,7 @@ public class GUIClient{
     JFrame preFrame;
     JTextField  ipAddress;
     JTextField  port;
+    Client client = new Client();
 
     JComboBox<String> clientComboBox = new JComboBox<>();
     private Socket serverSocket;
@@ -127,7 +129,7 @@ public class GUIClient{
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             chatBoxInput.printLineToChatBox(username,messageBox.getText());
-            serverOutput.println("MSG:"+clientComboBox.getSelectedItem()+":"+messageBox.getText());
+            client.sendMessage(""+clientComboBox.getSelectedItem(),messageBox.getText());
             messageBox.setText("");
         }
     }
@@ -145,11 +147,7 @@ public class GUIClient{
             }
             else {
                 try {
-                    connectToServer(ip,portNumber);
-                    new Thread(
-                            new ServerInputRunnable(serverSocket,new GuiMessageListener(chatBoxInput, clientComboBox))
-                    ).start();
-                    serverOutput.println("LOGIN:"+username);
+                    establishServerCommunication(ip, portNumber);
                     preFrame.setVisible(false);
                     renderChatFrame();
                 } catch (IOException e) {
@@ -158,10 +156,13 @@ public class GUIClient{
             }
         }
 
-    }
+        private void establishServerCommunication(String ip, int portNumber) throws IOException {
+            client.connect(ip,portNumber);
+            new Thread(
+                    new ServerInputHandler(client,new GuiMessageListener(chatBoxInput, clientComboBox))
+            ).start();
+            client.sendLogin(username);
+        }
 
-    private void connectToServer(String ip, int port) throws IOException {
-        serverSocket = new Socket(ip, port);
-        serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
     }
 }

@@ -18,6 +18,9 @@ public class ConsoleMessageListener implements MessageListener {
 
     @Override
     public void handleClientListChange(String[] clientList) {
-        System.out.println(clientList);
+        System.out.println("Logged in users:");
+        for (String s : clientList) {
+            System.out.println(s);
+        }
     }
 }
