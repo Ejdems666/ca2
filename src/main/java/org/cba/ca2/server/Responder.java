@@ -26,7 +26,7 @@ public class Responder {
     /**
      * Sends the message to clients just as it is
      */
-    public void sendRawMessageToAllClients(String message) {
+    private void sendRawMessageToAllClients(String message) {
         for (ClientHandler clientHandler : clientHandlers) {
             clientHandler.getOutput().println(message);
         }

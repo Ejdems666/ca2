@@ -1,74 +1,54 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package gui;
+package org.cba.ca2.client.gui;
 
-/**
- *
- * @author trez__000
- */
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.cba.ca2.client.ServerInputRunnable;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-public class MainGUI {
+public class GUIClient{
 
     String      appName     = "SOCKET CHAT 0.1V";
-    MainGUI     mainGUI;
-    JFrame      newFrame    = new JFrame(appName);
-    JButton     sendMessage;
-    JTextField  messageBox;
-    JTextArea   chatBox;
-    JTextField  usernameChooser;
-    JFrame      preFrame;
+    JFrame newFrame = new JFrame("Colt Chat v0.1");
+    JButton sendMessage;
+    JTextField messageBox;
+    private JTextArea chatBox  = new JTextArea();
+    ChatBoxInput chatBoxInput = new ChatBoxInput(chatBox);
+    JTextField usernameChooser;
+    JFrame preFrame;
     JTextField  ipAddress;
     JTextField  port;
-   
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager
-                            .getSystemLookAndFeelClassName());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                MainGUI mainGUI = new MainGUI();
-                mainGUI.preDisplay();
-            }
-        });
+    JComboBox<String> clientComboBox = new JComboBox<>();
+    private Socket serverSocket;
+    private PrintWriter serverOutput;
+
+    public static void main(String[] args) throws IOException {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        GUIClient GUIClient = new GUIClient();
+        GUIClient.renderLoginFrame();
     }
 
-    public void preDisplay() {
+    public void renderLoginFrame() {
         newFrame.setVisible(false);
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(25);
         ipAddress = new JTextField(25);
+        ipAddress.setText("localhost");
         port = new JTextField(25);
+        port.setText("1235");
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JLabel chooseIpAddress = new JLabel("Insert IP address:");
         JLabel choosePort = new JLabel("Insert Port");
         JButton enterServer = new JButton("Enter Chat Server");
-        enterServer.addActionListener(new enterServerButtonListener());
         JPanel prePanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints preRight = new GridBagConstraints();
@@ -86,16 +66,17 @@ public class MainGUI {
         prePanel.add(chooseIpAddress, preLeft);
         prePanel.add(ipAddress, preRight);
         prePanel.add(choosePort, preLeft);
-        prePanel.add(port, preRight);      
+        prePanel.add(port, preRight);
         preFrame.add(BorderLayout.CENTER, prePanel);
         preFrame.add(BorderLayout.SOUTH, enterServer);
         preFrame.setSize(600, 600);
-        
         preFrame.setVisible(true);
+        preFrame.getRootPane().setDefaultButton(enterServer);
 
+        enterServer.addActionListener(new enterServerButtonListener());
     }
 
-    public void display() {
+    public void renderChatFrame() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
@@ -109,10 +90,10 @@ public class MainGUI {
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(new sendMessageButtonListener());
 
-        chatBox = new JTextArea();
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 25));
         chatBox.setLineWrap(true);
+        chatBoxInput.printLineToChatBox("server","You're logged in as"+username);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -129,6 +110,8 @@ public class MainGUI {
         right.weightx = 1.0D;
         right.weighty = 1.0D;
 
+
+        southPanel.add(clientComboBox,left);
         southPanel.add(messageBox, left);
         southPanel.add(sendMessage, right);
 
@@ -138,40 +121,47 @@ public class MainGUI {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(870, 500);
         newFrame.setVisible(true);
+        newFrame.getRootPane().setDefaultButton(sendMessage);
     }
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (messageBox.getText().length() < 1) {
-                // do nothing
-            } else if (messageBox.getText().equals(".clear")) {
-                chatBox.setText("Cleared all messages\n");
-                messageBox.setText("");
-            } else {                
-                chatBox.append("<" + username + ">:  " + messageBox.getText()
-                        + "\n");
-                messageBox.setText("");
-            }
-            messageBox.requestFocusInWindow();
+            chatBoxInput.printLineToChatBox(username,messageBox.getText());
+            serverOutput.println("MSG:"+clientComboBox.getSelectedItem()+":"+messageBox.getText());
+            messageBox.setText("");
         }
     }
 
-    String  username;
-    String  ip;
-    String  portAddress;
+    String username;
 
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             username = usernameChooser.getText();
-            ip = ipAddress.getText();
-            portAddress = port.getText();
+            String ip = ipAddress.getText();
+            int portNumber = Integer.parseInt(port.getText());
+            username = usernameChooser.getText();
             if (username.length() < 1) {
                 System.out.println("No!");
-            } else {
-                preFrame.setVisible(false);
-                display();
+            }
+            else {
+                try {
+                    connectToServer(ip,portNumber);
+                    new Thread(
+                            new ServerInputRunnable(serverSocket,new GuiMessageHandler(chatBoxInput, clientComboBox))
+                    ).start();
+                    serverOutput.println("LOGIN:"+username);
+                    preFrame.setVisible(false);
+                    renderChatFrame();
+                } catch (IOException e) {
+                    System.out.println("Couldn't connect to: "+ip+":"+portNumber);
+                }
             }
         }
 
+    }
+
+    private void connectToServer(String ip, int port) throws IOException {
+        serverSocket = new Socket(ip, port);
+        serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
     }
 }

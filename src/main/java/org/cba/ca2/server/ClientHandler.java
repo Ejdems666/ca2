@@ -55,7 +55,7 @@ public class ClientHandler implements Runnable {
                     if (isLoggedIn()) {
                         responder.sendClientListToAllClients();
                     } else {
-                        sendError("You're not logged in! Try again");
+                        logError("You're not logged in! Try again");
                     }
                 }
                 message = input.nextLine();
@@ -76,8 +76,8 @@ public class ClientHandler implements Runnable {
         responder.sendClientListToAllClients();
     }
 
-    private void sendError(String errorMessage) {
-        output.println("ERROR:" + errorMessage);
+    private void logError(String errorMessage) {
+        System.out.println(errorMessage);
     }
 
     public boolean isLoggedIn() {
@@ -101,7 +101,7 @@ public class ClientHandler implements Runnable {
             case "MSG":
                 try {
                     if (splitMessage[1].isEmpty()) {
-                        sendError("Wrong Command!");
+                        logError("Wrong Command!");
                         break;
                     }
                     String message = splitMessage[2];
@@ -113,11 +113,11 @@ public class ClientHandler implements Runnable {
                     List<String> receivers = Arrays.asList(splitMessage[1].split(","));
                     responder.sendMessageToClientsByNames(this, receivers, message);
                 } catch (IndexOutOfBoundsException e) {
-                    sendError("Wrong Command!");
+                    logError("Wrong Command!");
                 }
                 break;
             default:
-                sendError("Wrong Command!");
+                logError("Wrong Command!");
 
         }
     }
