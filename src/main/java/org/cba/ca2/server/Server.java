@@ -31,7 +31,7 @@ public class Server {
         ExecutorService es = Executors.newFixedThreadPool(5);
         while (true) {
             Socket clientSocket = serverSocket.accept();           
-            System.out.println("Client connected");
+            System.out.println("ConsoleClient connected");
             ClientHandler clientHandler = new ClientHandler(clientSocket);
             responder.addClientHandler(clientHandler);
             clientHandler.setResponder(responder);
