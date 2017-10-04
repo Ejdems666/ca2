@@ -20,8 +20,7 @@ public class GuiMessageListener implements MessageListener {
 
     @Override
     public void handleIncomingMessage(String sender, String message) {
-        if(!sender.equals(username))
-            chatBoxInput.printLineToChatBox(sender,message);
+        if(!sender.equals(username)) chatBoxInput.printLineToChatBox(sender,message);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class GuiMessageListener implements MessageListener {
     public void handleClientListChange(String[] clientList) {
         clientsSelectBox.removeAllItems();
         for (String s : clientList) {
-            clientsSelectBox.addItem(s);
+            if (!s.equals(username)) clientsSelectBox.addItem(s);
         }
         clientsSelectBox.addItem("*");
     }
