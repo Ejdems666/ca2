@@ -1,17 +1,17 @@
 package org.cba.ca2.client.gui;
 
-import org.cba.ca2.client.MessageHandler;
+import org.cba.ca2.client.MessageListener;
 
 import javax.swing.*;
 
 /**
  * Created by adam on 03/10/2017.
  */
-public class GuiMessageHandler implements MessageHandler {
+public class GuiMessageListener implements MessageListener {
     private final ChatBoxInput chatBoxInput;
     private final JComboBox<String> clientsSelectBox;
 
-    public GuiMessageHandler(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox) {
+    public GuiMessageListener(ChatBoxInput chatBoxInput, JComboBox clientsSelectBox) {
         this.chatBoxInput = chatBoxInput;
         this.clientsSelectBox = clientsSelectBox;
     }

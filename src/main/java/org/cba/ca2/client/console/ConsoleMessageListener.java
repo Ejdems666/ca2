@@ -1,11 +1,11 @@
 package org.cba.ca2.client.console;
 
-import org.cba.ca2.client.MessageHandler;
+import org.cba.ca2.client.MessageListener;
 
 /**
  * Created by adam on 03/10/2017.
  */
-public class ConsoleMessageHandler implements MessageHandler {
+public class ConsoleMessageListener implements MessageListener {
     @Override
     public void handleIncomingMessage(String sender, String message) {
         System.out.println("<"+sender+">: "+message);
@@ -18,6 +18,9 @@ public class ConsoleMessageHandler implements MessageHandler {
 
     @Override
     public void handleClientListChange(String[] clientList) {
-        System.out.println(clientList);
+        System.out.println("Logged in users:");
+        for (String s : clientList) {
+            System.out.println(s);
+        }
     }
 }
