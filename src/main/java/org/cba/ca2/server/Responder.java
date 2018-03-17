@@ -28,7 +28,7 @@ public class Responder {
      */
     private void sendRawMessageToAllClients(String message) {
         for (ClientHandler clientHandler : clientHandlers) {
-            clientHandler.getOutput().println(message);
+            clientHandler.sendMessage(message);
         }
     }
 
@@ -39,7 +39,7 @@ public class Responder {
         message = getFormattedMessage(sender, message);
         for (ClientHandler clientHandler : clientHandlers) {
             if (recipients.contains(clientHandler.getName())) {
-                clientHandler.getOutput().println(message);
+                clientHandler.sendMessage(message);
             }
         }
     }

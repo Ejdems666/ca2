@@ -38,8 +38,8 @@ public class ClientHandler implements Runnable {
         this.responder = responder;
     }
 
-    public PrintWriter getOutput() {
-        return output;
+    public void sendMessage(String message) {
+        output.println(message);
     }
 
     @Override
